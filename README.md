@@ -1,93 +1,339 @@
-# DocMind_AI
+# DocMind AI - RAG System
 
+A comprehensive Retrieval-Augmented Generation (RAG) system built with Spring Boot that enables intelligent document processing, semantic search, and AI-powered conversations.
 
+## 📋 Overview
 
-## Getting started
+DocMind AI is a sophisticated backend system designed to:
+- **Upload and Process Documents**: Support PDF document uploads with automatic text extraction
+- **Semantic Search**: Store and search documents using vector embeddings via Qdrant
+- **AI-Powered Chat**: Provide intelligent responses based on uploaded documents using Ollama LLM
+- **Document Management**: Track document status, metadata, and processing information
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+## 🏗️ Architecture
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+### Technology Stack
 
-## Add your files
+| Component | Technology |
+|-----------|-----------|
+| **Framework** | Spring Boot 4.1.0 |
+| **Language** | Java 21 |
+| **Database** | PostgreSQL |
+| **Vector DB** | Qdrant |
+| **LLM** | Ollama |
+| **Build Tool** | Gradle |
+| **ORM** | Spring Data JPA (Hibernate) |
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+### Dependencies
+
+- **Spring Boot Starters**: Web, Data JPA, Validation, DevTools
+- **PDF Processing**: Apache PDFBox 3.0.5
+- **Utilities**: Lombok for boilerplate reduction
+- **Database**: PostgreSQL Driver
+- **Testing**: JUnit Platform with Spring Boot Test Starters
+
+## 📁 Project Structure
 
 ```
-cd existing_repo
-git remote add origin https://git.netcracker.com/pusa0725/docmind_ai.git
-git branch -M master
-git push -uf origin master
+docmind-ai/
+├── src/
+│   ├── main/
+│   │   ├── java/com/docmind/
+│   │   │   ├── controller/              # REST API Endpoints
+│   │   │   │   ├── DocumentController   # Document upload endpoints
+│   │   │   │   ├── ChatController       # Chat/Question endpoints
+│   │   │   │   └── HealthController     # Health check endpoint
+│   │   │   ├── service/                 # Business Logic Layer
+│   │   │   │   ├── DocumentService      # Document management interface
+│   │   │   │   ├── ChatService          # Chat service interface
+│   │   │   │   ├── PdfService           # PDF processing interface
+│   │   │   │   ├── EmbeddingService     # Vector embedding interface
+│   │   │   │   ├── QdrantService        # Vector DB interface
+│   │   │   │   ├── OllamaService        # LLM interface
+│   │   │   │   ├── TextChunkService     # Text chunking interface
+│   │   │   │   └── impl/                # Implementation classes
+│   │   │   ├── repository/              # Data Access Layer
+│   │   │   │   └── DocumentRepository   # JPA Repository for Document entity
+│   │   │   ├── entity/                  # Domain Models
+│   │   │   │   ├── Document             # Document entity with metadata
+│   │   │   │   └── BaseEntity           # Base class with audit fields
+│   │   │   ├── dto/                     # Data Transfer Objects
+│   │   │   │   ├── EmbeddingRequest/Response
+│   │   │   │   ├── SearchRequest/Response
+│   │   │   │   ├── PointRequest
+│   │   │   │   ├── request/ChatRequest, OllamaRequest
+│   │   │   │   └── response/ChatResponse, OllamaResponse
+│   │   │   ├── enums/                   # Enumerations
+│   │   │   │   └── DocumentStatus       # Document processing status enum
+│   │   │   ├── config/                  # Configuration Classes
+│   │   │   │   └── JpaAuditConfig       # JPA auditing configuration
+│   │   │   └── DocMindAIApplication.java  # Main application class
+│   │   └── resources/
+│   │       └── application.properties   # Application configuration
+│   ├── test/
+│   │   └── java/com/docmind/
+│   │       └── DocMindAIApplicationTests.java
+├── build.gradle                         # Gradle build configuration
+├── settings.gradle                      # Gradle settings
+├── gradlew / gradlew.bat               # Gradle wrapper scripts
+└── uploads/                             # Directory for uploaded files
+
 ```
 
-## Integrate with your tools
+## 🔧 Configuration
 
-- [ ] [Set up project integrations](https://git.netcracker.com/pusa0725/docmind_ai/-/settings/integrations)
+### Database Configuration
+```properties
+spring.datasource.url=jdbc:postgresql://localhost:5432/docmind_ai
+spring.datasource.username=postgres
+spring.datasource.password=admin
+```
 
-## Collaborate with your team
+### JPA/Hibernate Configuration
+```properties
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+```
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+### Server Configuration
+```properties
+server.port=8080
+file.upload-dir=uploads
+```
 
-## Test and Deploy
+## 🚀 Getting Started
 
-Use the built-in continuous integration in GitLab.
+### Prerequisites
+- Java 21 or higher
+- PostgreSQL database
+- Qdrant vector database instance
+- Ollama LLM service
+- Gradle (or use gradlew wrapper)
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+### Installation & Setup
 
-***
+1. **Clone the repository**
+   ```bash
+   git clone XXXXX.git
+   cd docmind-ai
+   ```
 
-# Editing this README
+2. **Configure environment variables**
+   - Update `src/main/resources/application.properties` with your:
+     - PostgreSQL connection details
+     - Qdrant service endpoint
+     - Ollama service endpoint
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+3. **Build the project**
+   ```bash
+   ./gradlew build
+   ```
 
-## Suggestions for a good README
+4. **Run the application**
+   ```bash
+   ./gradlew bootRun
+   ```
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+The application will start on `http://localhost:8080`
 
-## Name
-Choose a self-explaining name for your project.
+## 📡 API Endpoints
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+### Swagger UI Documentation
+Access the interactive API documentation at:
+```
+http://localhost:8080/swagger-ui/index.html
+```
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+### Health Check
+**GET** `/health`
+- Returns the health status of the DocMind AI service
+- Response: `"DocMind AI is running successfully!"`
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+### Document Management
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+**POST** `/documents/upload`
+- Upload a PDF document for processing
+- Request: Multipart file upload (PDF)
+- Response: Upload status message
+- Features:
+  - Automatic PDF text extraction
+  - Text chunking for semantic search
+  - Vector embedding generation
+  - Document metadata storage in PostgreSQL
+  - Vector storage in Qdrant
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+### Chat/Question Answering
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+**POST** `/chat`
+- Submit a question to get AI-powered response based on uploaded documents
+- Request Body:
+  ```json
+  {
+    "question": "Your question here"
+  }
+  ```
+- Response:
+  ```json
+  {
+    "response": "AI generated answer"
+  }
+  ```
+- Process:
+  1. Generates embedding for the question
+  2. Searches Qdrant for relevant document chunks
+  3. Sends context + question to Ollama LLM
+  4. Returns generated response
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+## 🏢 Core Components
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+### Controllers
+- **DocumentController**: Handles document uploads and processing
+- **ChatController**: Handles chat queries and responses
+- **HealthController**: Service health monitoring
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+### Services
+- **DocumentService**: Document lifecycle management (upload, storage, retrieval)
+- **ChatService**: Chat query orchestration and response generation
+- **PdfService**: PDF text extraction and processing
+- **EmbeddingService**: Vector embedding generation for text chunks
+- **QdrantService**: Vector database operations (store, search, delete)
+- **OllamaService**: LLM integration for text generation
+- **TextChunkService**: Text splitting and chunking strategies
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+### Data Models
+- **Document Entity**: Stores document metadata with status tracking
+  - ID, original filename, stored filename, file path
+  - File size, MIME type, processing status
+  - Timestamps for audit trail
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+### DTOs
+- **ChatRequest/Response**: Chat interaction models
+- **EmbeddingRequest/Response**: Embedding generation models
+- **SearchRequest/Response**: Vector search models
+- **OllamaRequest/Response**: LLM interaction models
 
-## License
-For open source projects, say how it is licensed.
+## 📊 Workflow
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+```
+Document Upload Flow:
+1. User uploads PDF via /documents/upload
+2. PDF is stored in local filesystem (uploads/)
+3. Text extraction via Apache PDFBox
+4. Text split into chunks (TextChunkService)
+5. Embeddings generated for each chunk (EmbeddingService)
+6. Document metadata saved to PostgreSQL
+7. Embeddings and vectors stored in Qdrant
+8. Return success status to user
+
+Chat/Query Flow:
+1. User submits question via /chat endpoint
+2. Question embedding generated (EmbeddingService)
+3. Vector search performed against Qdrant
+4. Top-K relevant chunks retrieved
+5. Context + question sent to Ollama LLM
+6. AI response generated and returned
+```
+
+## 🔐 Document Status
+
+The system tracks document processing status through the `DocumentStatus` enum:
+- **PENDING**: Document uploaded, processing in queue
+- **PROCESSING**: Currently extracting text and generating embeddings
+- **COMPLETED**: Successfully processed and indexed
+- **FAILED**: Processing encountered an error
+
+## 📝 Entity Relationships
+
+**Document Entity**:
+- Extends `BaseEntity` for audit trail (created_at, updated_at, created_by, updated_by)
+- Persisted in PostgreSQL `documents` table
+- Tracked by `DocumentRepository`
+- Integrates with vector storage in Qdrant
+
+## 🛠️ Development
+
+### Build
+```bash
+./gradlew build
+```
+
+### Run Tests
+```bash
+./gradlew test
+```
+
+### Run with DevTools
+DevTools is enabled for hot reload during development:
+```bash
+./gradlew bootRun
+```
+
+### Code Style
+- Uses Lombok for reducing boilerplate code
+- Follows Spring Boot best practices
+- Organized into layers: Controller → Service → Repository
+
+## 📦 Project Metadata
+
+- **Group ID**: com.docmind
+- **Artifact ID**: docmind-ai
+- **Version**: 0.0.1-SNAPSHOT
+- **Java Version**: 21
+- **Spring Boot Version**: 4.1.0
+- **Gradle Version**: Compatible with wrapper
+
+## 🔄 Data Flow
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    CLIENT APPLICATION                       │
+└─────────────────────────────────────────────────────────────┘
+                              ↕
+┌─────────────────────────────────────────────────────────────┐
+│             REST API (DocumentController, ChatController)    │
+└─────────────────────────────────────────────────────────────┘
+                              ↕
+┌─────────────────────────────────────────────────────────────┐
+│         SERVICE LAYER (Business Logic & Orchestration)      │
+└─────────────────────────────────────────────────────────────┘
+                              ↕
+         ┌────────────────────┼────────────────────┐
+         ↕                    ↕                    ↕
+    ┌─────────┐         ┌──────────┐         ┌──────────┐
+    │PostgreSQL│         │ Qdrant   │         │  Ollama  │
+    │Database  │         │ Vec DB   │         │   LLM    │
+    └─────────┘         └──────────┘         └──────────┘
+```
+
+## 🚨 Error Handling
+
+- Validation errors are managed through Spring Boot validation annotations
+- File operations handle IO exceptions
+- Database operations include transaction management
+- REST endpoints return appropriate HTTP status codes
+
+## 🎯 Future Enhancements
+
+- Multi-format document support (DOCX, TXT, etc.)
+- Advanced chunking strategies
+- Prompt optimization
+- Fine-tuning LLM responses
+- Document versioning
+- User authentication & authorization
+- Rate limiting
+- Caching layer for embeddings
+- Monitoring and logging
+
+## 📧 Support
+
+For issues and questions, please refer to the repository or contact the development team.
+
+## 📄 License
+
+This project is part of the DocMind AI initiative.
+
+---
+
+**Last Updated**: 2026-07-20
+**Version**: 0.0.1-SNAPSHOT

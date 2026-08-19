@@ -1,0 +1,214 @@
+{
+    "info": {
+        "name": "AI",
+        "_postman_id": "f552bcf3-5813-4b73-a585-392fa4f13564",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "upload",
+            "event": [],
+            "request": {
+                "url": {
+                    "raw": "http://localhost:8080/documents/upload",
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "8080",
+                    "path": [
+                        "documents",
+                        "upload"
+                    ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                    "mode": "formdata",
+                    "formdata": [
+                        {
+                            "key": "file",
+                            "type": "file",
+                            "src": "C:\\Users\\pusa0725\\Documents\\Sai Krishna\\AI\\RAG\\Release Notes.pdf"
+                        }
+                    ]
+                },
+                "auth": {
+                    "type": "noauth"
+                }
+            },
+            "response": [],
+            "protocolProfileBehavior": {}
+        },
+        {
+            "name": "chat",
+            "event": [],
+            "request": {
+                "url": {
+                    "raw": "http://localhost:8080/chat",
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "8080",
+                    "path": [
+                        "chat"
+                    ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\r\n    \"question\": \"tell me more abot the AI\"\r\n}",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    }
+                },
+                "auth": {
+                    "type": "noauth"
+                }
+            },
+            "response": [],
+            "protocolProfileBehavior": {}
+        },
+        {
+            "name": "Qdrant",
+            "event": [],
+            "request": {
+                "url": {
+                    "raw": "http://localhost:6333/collections/documents",
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "6333",
+                    "path": [
+                        "collections",
+                        "documents"
+                    ]
+                },
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json",
+                        "type": "default"
+                    },
+                    {
+                        "type": "default"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\r\n    \"vectors\": {\r\n        \"size\": 768,\r\n        \"distance\": \"Cosine\"\r\n    }\r\n}",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    }
+                },
+                "auth": {
+                    "type": "noauth"
+                }
+            },
+            "response": [],
+            "protocolProfileBehavior": {
+                "disableBodyPruning": true
+            }
+        },
+        {
+            "name": "Qdrant View Stored Data",
+            "event": [],
+            "request": {
+                "url": {
+                    "raw": "http://localhost:6333/collections/documents/points/scroll",
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "6333",
+                    "path": [
+                        "collections",
+                        "documents",
+                        "points",
+                        "scroll"
+                    ]
+                },
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json",
+                        "type": "default"
+                    },
+                    {
+                        "type": "default"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\r\n  \"limit\": 5,\r\n  \"with_payload\": true,\r\n  \"with_vector\": false\r\n}",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    }
+                },
+                "auth": {
+                    "type": "noauth"
+                }
+            },
+            "response": [],
+            "protocolProfileBehavior": {}
+        },
+        {
+            "name": "View the Embedding Vector",
+            "event": [],
+            "request": {
+                "url": {
+                    "raw": "http://localhost:6333/collections/documents/points/scroll",
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "6333",
+                    "path": [
+                        "collections",
+                        "documents",
+                        "points",
+                        "scroll"
+                    ]
+                },
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json",
+                        "type": "default"
+                    },
+                    {
+                        "type": "default"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\r\n  \"limit\": 5,\r\n  \"with_payload\": true,\r\n  \"with_vector\": true\r\n}",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    }
+                },
+                "auth": {
+                    "type": "noauth"
+                }
+            },
+            "response": [],
+            "protocolProfileBehavior": {}
+        }
+    ],
+    "event": [],
+    "variable": []
+}
