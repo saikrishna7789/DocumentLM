@@ -4,6 +4,7 @@ import com.docmind.service.DocumentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,8 +20,10 @@ public class DocumentController {
     private final DocumentService service;
 
     @Operation(summary = "Upload a PDF document")
-    @PostMapping("/upload")
-    public ResponseEntity<String> upload(@RequestParam MultipartFile file) throws IOException {
+    @PostMapping(
+            value = "/upload",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )    public ResponseEntity<String> upload(@RequestParam MultipartFile file) throws IOException {
         return ResponseEntity.ok(service.upload(file));
     }
 

@@ -1,7 +1,10 @@
 package com.docmind.service;
 
+
+import com.docmind.dto.response.ChatResponse;
+
 public interface ChatService {
 
-    String ask(String question);
+    ChatResponse ask(String question);
 
 }

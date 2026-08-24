@@ -7,6 +7,7 @@ import com.docmind.service.QdrantService;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,8 @@ import java.util.Map;
 public class QdrantServiceImpl implements QdrantService {
 
     private static final String COLLECTION_NAME = "documents";
+
+    private static final int VECTOR_DIM = 1536;
 
     private final RestClient restClient =
             RestClient.create("http://localhost:6333");
@@ -43,11 +46,35 @@ public class QdrantServiceImpl implements QdrantService {
                         .points(List.of(point))
                         .build();
 
-        restClient.put()
-                .uri("/collections/{collection}/points", COLLECTION_NAME)
-                .body(request)
-                .retrieve()
-                .toBodilessEntity();
+        try {
+            restClient.put()
+                    .uri("/collections/{collection}/points", COLLECTION_NAME)
+                    .body(request)
+                    .retrieve()
+                    .toBodilessEntity();
+        } catch (HttpClientErrorException.NotFound notFound) {
+            // Collection missing — create with expected vector size and distance, then retry once
+            Map<String, Object> vectors = Map.of(
+                    "size", VECTOR_DIM,
+                    "distance", "Cosine"
+            );
+            Map<String, Object> collBody = Map.of(
+                    "vectors", vectors
+            );
+
+            restClient.put()
+                    .uri("/collections/{collection}", COLLECTION_NAME)
+                    .body(collBody)
+                    .retrieve()
+                    .toBodilessEntity();
+
+            // retry storing points after creating collection
+            restClient.put()
+                    .uri("/collections/{collection}/points", COLLECTION_NAME)
+                    .body(request)
+                    .retrieve()
+                    .toBodilessEntity();
+        }
     }
 
     @Override

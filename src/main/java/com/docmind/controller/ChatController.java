@@ -20,8 +20,6 @@ public class ChatController {
     @PostMapping
     public ChatResponse chat(@RequestBody ChatRequest request) {
 
-        return new ChatResponse(
-                chatService.ask(request.getQuestion())
-        );
+        return chatService.ask(request.getQuestion());
     }
 }
