@@ -7,7 +7,7 @@ A comprehensive Retrieval-Augmented Generation (RAG) system built with Spring Bo
 DocMind AI is a sophisticated backend system designed to:
 - **Upload and Process Documents**: Support PDF document uploads with automatic text extraction
 - **Semantic Search**: Store and search documents using vector embeddings via Qdrant
-- **AI-Powered Chat**: Provide intelligent responses based on uploaded documents using Ollama LLM
+- **AI-Powered Chat**: Provide intelligent responses based on uploaded documents using Ollama or Kimi LLM
 - **Document Management**: Track document status, metadata, and processing information
 
 ## 🏗️ Architecture
@@ -20,7 +20,7 @@ DocMind AI is a sophisticated backend system designed to:
 | **Language** | Java 21 |
 | **Database** | PostgreSQL |
 | **Vector DB** | Qdrant |
-| **LLM** | Ollama |
+| **LLM** | Ollama / Kimi |
 | **Build Tool** | Gradle |
 | **ORM** | Spring Data JPA (Hibernate) |
 
@@ -49,7 +49,8 @@ docmind-ai/
 │   │   │   │   ├── PdfService           # PDF processing interface
 │   │   │   │   ├── EmbeddingService     # Vector embedding interface
 │   │   │   │   ├── QdrantService        # Vector DB interface
-│   │   │   │   ├── OllamaService        # LLM interface
+│   │   │   │   ├── OllamaService        # Ollama LLM interface
+│   │   │   │   ├── KimiService          # Kimi / Moonshot AI LLM interface
 │   │   │   │   ├── TextChunkService     # Text chunking interface
 │   │   │   │   └── impl/                # Implementation classes
 │   │   │   ├── repository/              # Data Access Layer
@@ -102,13 +103,31 @@ server.port=8080
 file.upload-dir=uploads
 ```
 
+### LLM Configuration
+Choose the LLM provider by setting `llm.provider`.
+
+**Ollama (default)**
+```properties
+llm.provider=ollama
+```
+- Ensure Ollama is running on `http://localhost:11434` with the configured model.
+
+**Kimi / Moonshot AI**
+```properties
+llm.provider=kimi
+kimi.base-url=https://api.moonshot.cn
+kimi.model=moonshot-v1-8k
+kimi.api-key=${KIMI_API_KEY}
+```
+- Sign up at [Moonshot AI](https://www.moonshot.cn/) to obtain an API key.
+
 ## 🚀 Getting Started
 
 ### Prerequisites
 - Java 21 or higher
 - PostgreSQL database
 - Qdrant vector database instance
-- Ollama LLM service
+- Ollama LLM service or a Kimi / Moonshot AI API key
 - Gradle (or use gradlew wrapper)
 
 ### Installation & Setup
@@ -211,7 +230,8 @@ http://localhost:8080/swagger-ui/index.html
 - **ChatRequest/Response**: Chat interaction models
 - **EmbeddingRequest/Response**: Embedding generation models
 - **SearchRequest/Response**: Vector search models
-- **OllamaRequest/Response**: LLM interaction models
+- **OllamaRequest/Response**: Ollama LLM interaction models
+- **KimiRequest/Response**: Kimi / Moonshot AI LLM interaction models
 
 ## 📊 Workflow
 

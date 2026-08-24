@@ -3,21 +3,39 @@ package com.docmind.service.impl;
 import com.docmind.dto.response.ChatResponse;
 import com.docmind.enums.MessageIntent;
 import com.docmind.service.*;
-import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Service
-@RequiredArgsConstructor
 public class ChatServiceImpl implements ChatService {
 
     private final EmbeddingService embeddingService;
     private final QdrantService qdrantService;
     private final OllamaService ollamaService;
+    private final KimiService kimiService;
     private final MessageClassifier messageClassifier;
+    private final String llmProvider;
+
+    public ChatServiceImpl(
+            EmbeddingService embeddingService,
+            QdrantService qdrantService,
+            OllamaService ollamaService,
+            @Autowired(required = false) KimiService kimiService,
+            MessageClassifier messageClassifier,
+            @Value("${llm.provider:ollama}") String llmProvider) {
+
+        this.embeddingService = embeddingService;
+        this.qdrantService = qdrantService;
+        this.ollamaService = ollamaService;
+        this.kimiService = kimiService;
+        this.messageClassifier = messageClassifier;
+        this.llmProvider = llmProvider;
+    }
 
     @Override
     public ChatResponse ask(String question) {
@@ -200,6 +218,21 @@ public class ChatServiceImpl implements ChatService {
                 %s
                 """.formatted(context, question);
 
-        return new ChatResponse(ollamaService.ask(prompt));
+        String answer = switch (llmProvider.toLowerCase()) {
+
+            case "kimi" -> {
+                if (kimiService == null) {
+                    throw new IllegalStateException(
+                            "Kimi is selected as LLM provider but KimiService is not available. "
+                                    + "Check that llm.provider=kimi and that kimi.api-key is configured."
+                    );
+                }
+                yield kimiService.ask(prompt);
+            }
+
+            default -> ollamaService.ask(prompt);
+        };
+
+        return new ChatResponse(answer);
     }
 }
