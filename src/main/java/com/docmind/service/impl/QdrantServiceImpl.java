@@ -17,7 +17,8 @@ public class QdrantServiceImpl implements QdrantService {
 
     private static final String COLLECTION_NAME = "documents";
 
-    private static final int VECTOR_DIM = 1536;
+    // Ollama's nomic-embed-text model produces 768-dimensional embeddings.
+    private static final int VECTOR_DIM = 768;
 
     private final RestClient restClient =
             RestClient.create("http://localhost:6333");
@@ -53,28 +54,50 @@ public class QdrantServiceImpl implements QdrantService {
                     .retrieve()
                     .toBodilessEntity();
         } catch (HttpClientErrorException.NotFound notFound) {
-            // Collection missing — create with expected vector size and distance, then retry once
-            Map<String, Object> vectors = Map.of(
-                    "size", VECTOR_DIM,
-                    "distance", "Cosine"
-            );
-            Map<String, Object> collBody = Map.of(
-                    "vectors", vectors
-            );
-
-            restClient.put()
-                    .uri("/collections/{collection}", COLLECTION_NAME)
-                    .body(collBody)
-                    .retrieve()
-                    .toBodilessEntity();
-
-            // retry storing points after creating collection
-            restClient.put()
-                    .uri("/collections/{collection}/points", COLLECTION_NAME)
-                    .body(request)
-                    .retrieve()
-                    .toBodilessEntity();
+            createCollection();
+            retryStorePoints(request);
+        } catch (HttpClientErrorException.BadRequest badRequest) {
+            String response = badRequest.getResponseBodyAsString();
+            if (response != null && response.contains("Vector dimension error")) {
+                createCollection();
+                retryStorePoints(request);
+                return;
+            }
+            throw badRequest;
         }
+    }
+
+    private void createCollection() {
+        try {
+            restClient.delete()
+                    .uri("/collections/{collection}", COLLECTION_NAME)
+                    .retrieve()
+                    .toBodilessEntity();
+        } catch (Exception ignored) {
+            // Collection may already be missing or locked during startup; continue with creation.
+        }
+
+        Map<String, Object> vectors = Map.of(
+                "size", VECTOR_DIM,
+                "distance", "Cosine"
+        );
+        Map<String, Object> collBody = Map.of(
+                "vectors", vectors
+        );
+
+        restClient.put()
+                .uri("/collections/{collection}", COLLECTION_NAME)
+                .body(collBody)
+                .retrieve()
+                .toBodilessEntity();
+    }
+
+    private void retryStorePoints(PointRequest request) {
+        restClient.put()
+                .uri("/collections/{collection}/points", COLLECTION_NAME)
+                .body(request)
+                .retrieve()
+                .toBodilessEntity();
     }
 
     @Override

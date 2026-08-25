@@ -18,17 +18,29 @@ public class KimiServiceImpl implements KimiService {
 
     private final String apiKey;
 
+    private final String baseUrl;
+
     public KimiServiceImpl(
-            @Value("${kimi.base-url:https://api.moonshot.cn}") String baseUrl,
-            @Value("${kimi.model:moonshot-v1-8k}") String model,
-            @Value("${kimi.api-key:}") String apiKey) {
+            @Value("${kimi.base-url}") String baseUrl,
+            @Value("${kimi.model}") String model,
+            @Value("${kimi.api-key}") String apiKey) {
+
+        String normalizedBaseUrl = baseUrl == null ? "" : baseUrl.trim();
+        if (normalizedBaseUrl.endsWith("/")) {
+            normalizedBaseUrl = normalizedBaseUrl.substring(0, normalizedBaseUrl.length() - 1);
+        }
 
         this.restClient = RestClient.builder()
-                .baseUrl(baseUrl)
+                .baseUrl(normalizedBaseUrl)
                 .defaultHeader("Authorization", "Bearer " + apiKey)
                 .build();
         this.model = model;
         this.apiKey = apiKey;
+        this.baseUrl = normalizedBaseUrl;
+    }
+
+    private String buildChatCompletionsPath() {
+        return baseUrl.toLowerCase().contains("/v1") ? "/chat/completions" : "/v1/chat/completions";
     }
 
     @Override
@@ -43,7 +55,7 @@ public class KimiServiceImpl implements KimiService {
         KimiRequest request = new KimiRequest(model, prompt);
 
         KimiResponse response = restClient.post()
-                .uri("/v1/chat/completions")
+                .uri(buildChatCompletionsPath())
                 .body(request)
                 .retrieve()
                 .body(KimiResponse.class);

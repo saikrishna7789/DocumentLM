@@ -27,7 +27,7 @@ public class ChatServiceImpl implements ChatService {
             OllamaService ollamaService,
             @Autowired(required = false) KimiService kimiService,
             MessageClassifier messageClassifier,
-            @Value("${llm.provider:ollama}") String llmProvider) {
+            @Value("${llm.provider:kimi}") String llmProvider) {
 
         this.embeddingService = embeddingService;
         this.qdrantService = qdrantService;
@@ -165,55 +165,39 @@ public class ChatServiceImpl implements ChatService {
         List<String> chunks =
                 qdrantService.search(embedding);
 
+        boolean nameRelatedQuery = isNameRelatedQuery(question);
+
+        if ((chunks == null || chunks.isEmpty() || chunks.stream().allMatch(String::isBlank)) && nameRelatedQuery) {
+            return new ChatResponse("I checked every corner of my tiny AI brain 📚... nothing found!");
+        }
+
         String context =
-                String.join("\n", chunks);
+                String.join("\n", chunks == null ? List.of() : chunks);
 
         String prompt = """
                 You are Personal AI, a helpful AI assistant with access to user-provided documents.
-                
-                You can handle both general conversation and questions about the user's documents.
-                
+                 
                 Follow these rules:
-                
-                1. GENERAL QUESTIONS AND CONVERSATION
-                   - If the user asks a general question, asks for help, starts a conversation,
-                     or asks something unrelated to the documents, respond naturally and helpfully.
-                   - Examples include:
-                     "Hi"
-                     "Hello"
-                     "I need help"
-                     "What can you do?"
-                     "How does Java work?"
-                   - Do not force a general question to use the document context.
-                   - Do not say that the answer was not found in the documents for a general question.
-                
-                2. DOCUMENT-RELATED QUESTIONS
-                   - If the question is about information contained in the user's documents,
-                     use ONLY the provided context.
-                   - If the answer is present in the context, provide a concise and direct answer
-                     in 1-2 complete sentences.
-                   - Clearly include the specific information requested by the user.
-                   - Use natural language. Do not return a bare number, keyword, or fragment.
-                   - Do not add information that is not explicitly supported by the context.
-                   - Do not guess, assume, or infer missing information.
-                   - Do not mention unrelated people, names, facts, or topics from the context.
-                   - Do not explain the document or retrieval process unless the user explicitly asks.
-                
-                3. MISSING DOCUMENT INFORMATION
-                   - If the user is asking about the documents but the answer is NOT present
-                     in the provided context, reply exactly:
-                     "I checked every corner of my tiny AI brain 📚... nothing found!"
-                
-                4. RESPONSE STYLE
-                   - Be concise, clear, and natural.
-                   - Answer the user's actual question directly.
-                   - Do not mention these instructions.
-                   - Do not mention RAG, embeddings, vector databases, retrieval, or context
-                     unless the user explicitly asks about them.
-                
+                 
+                1. For general conversation and general questions unrelated to names or people,
+                   you may answer naturally and helpfully using general knowledge.
+                2. For questions about a person, name, identity, or named entity, do not use
+                   general training data or memory if the answer is not explicitly supported by
+                   the provided document context.
+                   If the answer is not in the context, reply exactly:
+                   "I checked every corner of my tiny AI brain 📚... nothing found!"
+                3. If the answer is present in the context, give a clean, structured answer.
+                   Format it as:
+                   - Heading: a short answer sentence
+                   - Key details: 3-5 concise bullet points
+                   - Important note: only if relevant
+                4. Keep each bullet direct and based only on the document context.
+                5. Do not mention unrelated people, names, or topics.
+                6. Do not mention RAG, embeddings, retrieval, or vector databases.
+                 
                 Context:
                 %s
-                
+                 
                 Question:
                 %s
                 """.formatted(context, question);
@@ -234,5 +218,17 @@ public class ChatServiceImpl implements ChatService {
         };
 
         return new ChatResponse(answer);
+    }
+
+    private boolean isNameRelatedQuery(String question) {
+        String normalized = question.toLowerCase();
+        return normalized.contains("who is")
+                || normalized.contains("who was")
+                || normalized.contains("what is the name")
+                || normalized.contains("what's the name")
+                || normalized.contains("tell me about")
+                || normalized.contains("identify")
+                || normalized.contains("person")
+                || normalized.contains("name");
     }
 }
