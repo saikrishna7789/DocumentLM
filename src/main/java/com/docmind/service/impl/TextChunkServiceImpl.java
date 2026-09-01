@@ -9,18 +9,30 @@ import java.util.List;
 @Service
 public class TextChunkServiceImpl implements TextChunkService {
 
-    private static final int CHUNK_SIZE = 500;
+    private static final int CHUNK_SIZE = 1500;
+    private static final int OVERLAP = 250;
 
     @Override
     public List<String> chunkText(String text) {
+        if (text == null || text.isBlank()) {
+            return List.of();
+        }
 
+        String normalizedText = text.replace("\r\n", "\n").trim();
         List<String> chunks = new ArrayList<>();
+        int step = CHUNK_SIZE - OVERLAP;
 
-        for (int i = 0; i < text.length(); i += CHUNK_SIZE) {
+        for (int i = 0; i < normalizedText.length(); i += step) {
+            int end = Math.min(i + CHUNK_SIZE, normalizedText.length());
+            String chunk = normalizedText.substring(i, end).trim();
 
-            int end = Math.min(i + CHUNK_SIZE, text.length());
+            if (!chunk.isEmpty()) {
+                chunks.add(chunk);
+            }
 
-            chunks.add(text.substring(i, end));
+            if (end >= normalizedText.length()) {
+                break;
+            }
         }
 
         return chunks;

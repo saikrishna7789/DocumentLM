@@ -4,6 +4,7 @@ import com.docmind.dto.PointRequest;
 import com.docmind.dto.SearchRequest;
 import com.docmind.dto.SearchResponse;
 import com.docmind.service.QdrantService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -12,6 +13,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Service
 public class QdrantServiceImpl implements QdrantService {
 
@@ -145,11 +147,14 @@ public class QdrantServiceImpl implements QdrantService {
 
     @Override
     public List<String> search(List<Double> embedding) {
+        if (embedding == null || embedding.isEmpty()) {
+            return List.of();
+        }
 
         SearchRequest request =
                 new SearchRequest(
                         embedding,
-                        3,
+                        10,
                         true
                 );
 
@@ -160,11 +165,17 @@ public class QdrantServiceImpl implements QdrantService {
                         .retrieve()
                         .body(SearchResponse.class);
 
-        System.out.println(response);
-
+        if (response == null || response.getResult() == null || response.getResult().isEmpty()) {
+            return List.of();
+        }
+        log.info(response.toString());
         return response.getResult()
                 .stream()
-                .map(point -> point.getPayload().get("text").toString())
+                .map(point -> point.getPayload() == null ? null : point.getPayload().get("text"))
+                .filter(java.util.Objects::nonNull)
+                .map(String::valueOf)
+                .filter(text -> !text.isBlank())
+                .distinct()
                 .toList();
     }
 }

@@ -3,11 +3,13 @@ package com.docmind.service.impl;
 import com.docmind.dto.request.KimiRequest;
 import com.docmind.dto.response.KimiResponse;
 import com.docmind.service.KimiService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
+@Slf4j
 @Service
 @ConditionalOnProperty(name = "llm.provider", havingValue = "kimi")
 public class KimiServiceImpl implements KimiService {
@@ -45,7 +47,7 @@ public class KimiServiceImpl implements KimiService {
 
     @Override
     public String ask(String prompt) {
-
+        log.info("Provider: " + model);
         if (apiKey == null || apiKey.isBlank()) {
             throw new IllegalStateException(
                     "Kimi API key is not configured. Set kimi.api-key or the KIMI_API_KEY environment variable."
@@ -60,12 +62,14 @@ public class KimiServiceImpl implements KimiService {
                 .retrieve()
                 .body(KimiResponse.class);
 
+
         if (response == null
                 || response.getChoices() == null
                 || response.getChoices().isEmpty()) {
             throw new IllegalStateException("Empty response from Kimi");
         }
 
+        log.info(response.toString());
         KimiResponse.Choice choice = response.getChoices().get(0);
 
         if (choice.getMessage() == null || choice.getMessage().getContent() == null) {

@@ -1,0 +1,40 @@
+spring:
+  application:
+    name: docmind-ai
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/knowledgehub_ai
+    username: postgres
+    password: admin
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
+
+server:
+  port: 8080
+
+file:
+  upload-dir: uploads
+
+# LLM provider: ollama (default) or kimi
+llm:
+  provider: kimi
+
+ollama:
+  base-url: http://localhost:11434
+  model: qwen2.5-coder:7b
+
+kimi:
+  base-url: https://litellm.ai.netcracker.cloud/v1/
+  model: kimi-k2.7
+  api-key: sk-Rc8vsOOREn3fDmJADLRpDQ

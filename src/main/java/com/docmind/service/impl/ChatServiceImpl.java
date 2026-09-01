@@ -3,6 +3,7 @@ package com.docmind.service.impl;
 import com.docmind.dto.response.ChatResponse;
 import com.docmind.enums.MessageIntent;
 import com.docmind.service.*;
+import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
+@Slf4j
 @Service
 public class ChatServiceImpl implements ChatService {
 
@@ -175,29 +177,29 @@ public class ChatServiceImpl implements ChatService {
                 String.join("\n", chunks == null ? List.of() : chunks);
 
         String prompt = """
-                You are Personal AI, a helpful AI assistant with access to user-provided documents.
-                 
-                Follow these rules:
-                 
-                1. For general conversation and general questions unrelated to names or people,
-                   you may answer naturally and helpfully using general knowledge.
-                2. For questions about a person, name, identity, or named entity, do not use
-                   general training data or memory if the answer is not explicitly supported by
-                   the provided document context.
-                   If the answer is not in the context, reply exactly:
-                   "I checked every corner of my tiny AI brain 📚... nothing found!"
-                3. If the answer is present in the context, give a clean, structured answer.
-                   Format it as:
-                   - Heading: a short answer sentence
-                   - Key details: 3-5 concise bullet points
-                   - Important note: only if relevant
-                4. Keep each bullet direct and based only on the document context.
-                5. Do not mention unrelated people, names, or topics.
-                6. Do not mention RAG, embeddings, retrieval, or vector databases.
-                 
+                You are Personal AI, a precise document-grounded assistant.
+
+                Primary rule: answer only from the provided context. If the answer is not explicitly present in the context,
+                reply exactly:
+                "I checked every corner of my tiny AI brain 📚... nothing found!"
+
+                Additional rules:
+                1. For general conversation not tied to uploaded documents, you may answer naturally.
+                2. For questions about a person, name, identity, or named entity, do not use general knowledge or memory if the
+                   answer is not explicitly supported by the context.
+                3. If the answer exists in the context, return clear plain-text output with this structure:
+                   - Heading: one short sentence answering the question
+                   - Key details: 3 to 5 concise bullet points based only on the context
+                   - Important note: include only if it adds necessary context and is supported by the context
+                4. Keep every bullet factual, specific, and directly backed by the context.
+                5. Do not invent names, dates, events, policies, or people.
+                6. Do not mention unrelated topics, past memory, or training data.
+                7. Do not mention RAG, embeddings, retrieval, vector databases, or document processing.
+                8. Keep the answer concise and readable.
+
                 Context:
                 %s
-                 
+
                 Question:
                 %s
                 """.formatted(context, question);
@@ -216,6 +218,8 @@ public class ChatServiceImpl implements ChatService {
 
             default -> ollamaService.ask(prompt);
         };
+
+        log.info(answer);
 
         return new ChatResponse(answer);
     }
