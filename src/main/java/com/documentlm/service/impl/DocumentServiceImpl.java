@@ -37,7 +37,7 @@ public class DocumentServiceImpl implements DocumentService {
     @Override
     public String upload(MultipartFile file) throws IOException {
 
-        Path uploadPath = Paths.get(uploadDir);
+        Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
 
         if (!Files.exists(uploadPath)) {
             Files.createDirectories(uploadPath);

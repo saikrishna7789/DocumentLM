@@ -24,7 +24,10 @@ server:
   port: 8080
 
 file:
-  upload-dir: uploads
+  upload-dir: C:\Users\pusa0725\Documents\Sai Krishna\docmind_ai\uploads
+
+app:
+  document-base-url: http://localhost:8080
 
 # LLM provider: ollama (default) or kimi
 llm:

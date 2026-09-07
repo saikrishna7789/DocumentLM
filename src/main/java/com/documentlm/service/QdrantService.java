@@ -1,6 +1,7 @@
 package com.documentlm.service;
 
 import java.util.List;
+import java.util.Map;
 
 public interface QdrantService {
 
@@ -12,6 +13,8 @@ public interface QdrantService {
     void deleteDocument(Long documentId);
 
     void clearCollection();
+
+    List<Map<String, Object>> searchWithMetadata(List<Double> embedding);
 
     List<String> search(List<Double> embedding);
 }

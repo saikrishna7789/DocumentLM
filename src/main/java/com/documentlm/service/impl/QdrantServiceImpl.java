@@ -12,6 +12,7 @@ import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -146,33 +147,56 @@ public class QdrantServiceImpl implements QdrantService {
     }
 
     @Override
-    public List<String> search(List<Double> embedding) {
+    public List<Map<String, Object>> searchWithMetadata(List<Double> embedding) {
         if (embedding == null || embedding.isEmpty()) {
             return List.of();
         }
 
-        SearchRequest request =
-                new SearchRequest(
-                        embedding,
-                        10,
-                        true
-                );
+        SearchRequest request = new SearchRequest(embedding, 10, true);
 
-        SearchResponse response =
-                restClient.post()
-                        .uri("/collections/{collection}/points/search", COLLECTION_NAME)
-                        .body(request)
-                        .retrieve()
-                        .body(SearchResponse.class);
+        SearchResponse response = restClient.post()
+                .uri("/collections/{collection}/points/search", COLLECTION_NAME)
+                .body(request)
+                .retrieve()
+                .body(SearchResponse.class);
 
         if (response == null || response.getResult() == null || response.getResult().isEmpty()) {
             return List.of();
         }
+
         log.info(response.toString());
-        return response.getResult()
-                .stream()
-                .map(point -> point.getPayload() == null ? null : point.getPayload().get("text"))
-                .filter(java.util.Objects::nonNull)
+        return response.getResult().stream()
+                .map(point -> {
+                    Map<String, Object> payload = point.getPayload();
+                    if (payload == null) {
+                        return null;
+                    }
+                    Map<String, Object> enriched = new java.util.HashMap<>(payload);
+                    enriched.put("score", point.getScore());
+                    return enriched;
+                })
+                .filter(Objects::nonNull)
+                .filter(payload -> payload.get("text") != null)
+                .sorted((left, right) -> Double.compare(
+                        extractScore(right),
+                        extractScore(left)
+                ))
+                .toList();
+    }
+
+    private double extractScore(Map<String, Object> payload) {
+        Object score = payload.get("score");
+        if (score instanceof Number number) {
+            return number.doubleValue();
+        }
+        return 0.0;
+    }
+
+    @Override
+    public List<String> search(List<Double> embedding) {
+        return searchWithMetadata(embedding).stream()
+                .map(payload -> payload.get("text"))
+                .filter(Objects::nonNull)
                 .map(String::valueOf)
                 .filter(text -> !text.isBlank())
                 .distinct()
