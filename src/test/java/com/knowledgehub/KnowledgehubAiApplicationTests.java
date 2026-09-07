@@ -1,10 +1,10 @@
-package com.docmind;
+package com.documentlm;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class DocMindAIApplicationTests {
+class DocumentLMAIApplicationTests {
 
 	@Test
 	void contextLoads() {

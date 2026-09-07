@@ -1,6 +1,6 @@
 spring:
   application:
-    name: docmind-ai
+    name: documentlm-ai
 
   datasource:
     url: jdbc:postgresql://localhost:5432/knowledgehub_ai

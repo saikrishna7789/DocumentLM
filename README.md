@@ -1,10 +1,10 @@
-# DocMind AI - RAG System
+# DocumentLM AI - RAG System
 
 A comprehensive Retrieval-Augmented Generation (RAG) system built with Spring Boot that enables intelligent document processing, semantic search, and AI-powered conversations.
 
 ## 📋 Overview
 
-DocMind AI is a sophisticated backend system designed to:
+DocumentLM AI is a sophisticated backend system designed to:
 - **Upload and Process Documents**: Support PDF document uploads with automatic text extraction
 - **Semantic Search**: Store and search documents using vector embeddings via Qdrant
 - **AI-Powered Chat**: Provide intelligent responses based on uploaded documents using Ollama or Kimi LLM
@@ -35,10 +35,10 @@ DocMind AI is a sophisticated backend system designed to:
 ## 📁 Project Structure
 
 ```
-docmind-ai/
+documentlm-ai/
 ├── src/
 │   ├── main/
-│   │   ├── java/com/docmind/
+│   │   ├── java/com/documentlm/
 │   │   │   ├── controller/              # REST API Endpoints
 │   │   │   │   ├── DocumentController   # Document upload endpoints
 │   │   │   │   ├── ChatController       # Chat/Question endpoints
@@ -68,12 +68,12 @@ docmind-ai/
 │   │   │   │   └── DocumentStatus       # Document processing status enum
 │   │   │   ├── config/                  # Configuration Classes
 │   │   │   │   └── JpaAuditConfig       # JPA auditing configuration
-│   │   │   └── DocMindAIApplication.java  # Main application class
+│   │   │   └── DocumentLMAIApplication.java  # Main application class
 │   │   └── resources/
 │   │       └── application.properties   # Application configuration
 │   ├── test/
-│   │   └── java/com/docmind/
-│   │       └── DocMindAIApplicationTests.java
+│   │   └── java/com/documentlm/
+│   │       └── DocumentLMAIApplicationTests.java
 ├── build.gradle                         # Gradle build configuration
 ├── settings.gradle                      # Gradle settings
 ├── gradlew / gradlew.bat               # Gradle wrapper scripts
@@ -85,7 +85,7 @@ docmind-ai/
 
 ### Database Configuration
 ```properties
-spring.datasource.url=jdbc:postgresql://localhost:5432/docmind_ai
+spring.datasource.url=jdbc:postgresql://localhost:5432/documentlm_ai
 spring.datasource.username=postgres
 spring.datasource.password=admin
 ```
@@ -135,7 +135,7 @@ kimi.api-key=${KIMI_API_KEY}
 1. **Clone the repository**
    ```bash
    git clone XXXXX.git
-   cd docmind-ai
+   cd documentlm-ai
    ```
 
 2. **Configure environment variables**
@@ -166,8 +166,8 @@ http://localhost:8080/swagger-ui/index.html
 
 ### Health Check
 **GET** `/health`
-- Returns the health status of the DocMind AI service
-- Response: `"DocMind AI is running successfully!"`
+- Returns the health status of the DocumentLM AI service
+- Response: `"DocumentLM AI is running successfully!"`
 
 ### Document Management
 
@@ -296,8 +296,8 @@ DevTools is enabled for hot reload during development:
 
 ## 📦 Project Metadata
 
-- **Group ID**: com.docmind
-- **Artifact ID**: docmind-ai
+- **Group ID**: com.documentlm
+- **Artifact ID**: documentlm-ai
 - **Version**: 0.0.1-SNAPSHOT
 - **Java Version**: 21
 - **Spring Boot Version**: 4.1.0
@@ -351,7 +351,7 @@ For issues and questions, please refer to the repository or contact the developm
 
 ## 📄 License
 
-This project is part of the DocMind AI initiative.
+This project is part of the DocumentLM AI initiative.
 
 ---
 
