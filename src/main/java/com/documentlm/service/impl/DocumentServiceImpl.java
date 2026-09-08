@@ -82,6 +82,11 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
+    public List<Document> listDocuments() {
+        return repository.findAll();
+    }
+
+    @Override
     @Transactional
     public String deleteDocument(Long documentId) {
         Document document = repository.findById(documentId)

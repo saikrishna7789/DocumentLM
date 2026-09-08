@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 @RestController
 @RequestMapping("/documents")
@@ -34,6 +35,12 @@ public class DocumentController {
     )
     public ResponseEntity<String> upload(@RequestParam MultipartFile file) throws IOException {
         return ResponseEntity.ok(service.upload(file));
+    }
+
+    @Operation(summary = "List all documents in the database")
+    @GetMapping
+    public ResponseEntity<List<Document>> listDocuments() {
+        return ResponseEntity.ok(service.listDocuments());
     }
 
     @Operation(summary = "Open a previously uploaded document by stored file name")
